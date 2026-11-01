@@ -1,0 +1,68 @@
+Private Declare Function AckNew Lib "buoy_audiocuekit" Alias "ack_new" (output As Int32) As Ptr
+Private Declare Function AckError Lib "buoy_audiocuekit" Alias "ack_error" (handle As Ptr) As String
+Private Declare Function AckLoad Lib "buoy_audiocuekit" Alias "ack_load" (handle As Ptr, filePath As String) As Int32
+Private Declare Function AckPlay Lib "buoy_audiocuekit" Alias "ack_play" (handle As Ptr, clip As Int32, gain As Double) As Int32
+Private Declare Sub AckVolume Lib "buoy_audiocuekit" Alias "ack_volume" (handle As Ptr, value As Double)
+Private Declare Sub AckPause Lib "buoy_audiocuekit" Alias "ack_pause" (handle As Ptr, paused As Int32)
+Private Declare Sub AckStop Lib "buoy_audiocuekit" Alias "ack_stop" (handle As Ptr)
+Private Declare Sub AckFree Lib "buoy_audiocuekit" Alias "ack_free" (handle As Ptr)
+
+Public Class AudioCueMixer
+    Private Property Handle As Ptr = Nil
+    Private Property Master As Double = 1.0
+    Public Property LastError As String = ""
+    Public Sub Constructor(output As Boolean = True)
+        Dim enabled As Int32 = 0
+        If output Then enabled = 1
+        Me.Handle = AckNew(enabled)
+        If Me.Handle = Nil Then Throw New InvalidArgumentException("Audio allocation failed")
+    End Sub
+    Private Sub RequireOpen()
+        If Me.Handle = Nil Then Throw New InvalidArgumentException("Audio mixer is closed")
+    End Sub
+    Public Property Volume As Double
+        Get
+            Return Me.Master
+        End Get
+        Set
+            Me.RequireOpen()
+            If value <> value Or value < 0.0 Or value > 1.0 Then Throw New InvalidArgumentException("Volume must be 0..1")
+            Me.Master = value
+            AckVolume(Me.Handle, value)
+        End Set
+    End Property
+    Public Function Load(filePath As String) As Integer
+        Me.RequireOpen()
+        For Each character As String In String.Chars(filePath)
+            If String.Asc(character) = 0 Then Throw New InvalidArgumentException("Audio filePath contains NUL")
+        Next
+        Dim clip As Integer = AckLoad(Me.Handle, filePath)
+        Me.LastError = AckError(Me.Handle)
+        Return clip
+    End Function
+    Public Function Play(clip As Integer, gain As Double = 0.65) As Boolean
+        Me.RequireOpen()
+        If clip < 0 Or clip > 31 Or gain <> gain Or gain < 0.0 Or gain > 1.0 Then Throw New InvalidArgumentException("Invalid cue or gain")
+        Dim accepted As Boolean = AckPlay(Me.Handle, clip, gain) <> 0
+        Me.LastError = AckError(Me.Handle)
+        Return accepted
+    End Function
+    Public Sub SetPaused(paused As Boolean)
+        Me.RequireOpen()
+        Dim flag As Int32 = 0
+        If paused Then flag = 1
+        AckPause(Me.Handle, flag)
+    End Sub
+    Public Sub Stop()
+        Me.RequireOpen()
+        AckStop(Me.Handle)
+    End Sub
+    Public Sub Close()
+        If Me.Handle = Nil Then Return
+        AckFree(Me.Handle)
+        Me.Handle = Nil
+    End Sub
+    Public Sub Destructor()
+        Me.Close()
+    End Sub
+End Class
