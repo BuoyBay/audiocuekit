@@ -1,4 +1,4 @@
-# PCM WAV cue mixer, optional SDL2 output
+# Mix PCM WAV cues through SDL2
 
 `Import audiocuekit`. `AudioCueMixer(output=True)` owns up to 32 WAV clips and
 16 simultaneous voices. `Load(filePath)` returns a clip ID or -1 with LastError;
