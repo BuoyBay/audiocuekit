@@ -34,5 +34,4 @@ positions. Stop clears all active voices and retains loaded clips.
 Physical audio playback and device hotplug are outside the offline validation
 contract. No device access is required to read documentation or load clips.
 
-
 [Full typed API: properties, parameters, defaults, and returns](typed-api.md)

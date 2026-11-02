@@ -6,11 +6,7 @@
 voices. SetPaused freezes voice positions. Stop clears voices. Close is final
 and idempotent. Use from one owning thread; SDL's callback synchronizes internally.
 
-Windows C bridge builds select `clang-cl` or `cl` in a Visual Studio developer
-shell, falling back to MinGW GCC. Set `CC` or pass `--cc` to select a compiler.
-MSVC-style builds produce both the DLL and its `.lib` import library. Native
-Windows C compilation requires the Windows SDK and developer-shell environment;
-the test VM has neither, so this path has command-contract tests only.
+Windows builds require a matching native compiler, Windows SDK and developer-shell environment. Deploy both the native bridge and its matching import library where required.
 
 ## Install
 
@@ -46,7 +42,6 @@ On your own machine, install Buoy and run:
 buoy ai init --both
 ```
 
-The generated agent files and editor settings stay local and are ignored by Git.
 
 ## Contributing
 

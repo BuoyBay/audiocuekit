@@ -15,26 +15,8 @@ Rust runtime is used. Linux needs libSDL2-2.0.so.0; macOS needs SDL2 installed
 (Homebrew `sdl2` is searched in standard prefixes); Windows needs SDL2.dll on its
 native library search path. Physical playback on macOS/Windows needs verification.
 
-`output=False` uses an offline mixer without opening a device. Native test-only
-ack_render exposes deterministic PCM for inaudible assertions. Do not call it
-concurrently. Python verifier checks asset metadata, silence, volume, pause,
-voice exhaustion, malformed WAV rejection and SDL's dummy audio device.
+`output=False` mixes offline without opening an audio device. Keep mixer calls on one owning thread.
 
-Build: `python3 tools/build_audiocuekit.py`. The builder exposes build(runtime_root)
-and seal(target, nativeLibrary, archive=...) for isolated application builders.
+Windows native C builds require a matching Windows SDK and compiler/import-library toolchain. Deploy `SDL2.dll` through the normal native library search path.
 
-Maintainers run the private validation suite before release. See the repository README for public build instructions.
-
-Windows C bridge builds select `clang-cl` or `cl` in a Visual Studio developer
-shell, falling back to MinGW GCC. Set `CC` or pass `--cc` to select a compiler.
-MSVC-style builds produce both the DLL and its `.lib` import library. Native
-Windows C compilation requires the Windows SDK and developer-shell environment;
-the test VM has neither, so this path has command-contract tests only.
-
-For a Linux MinGW cross slice:
-
-```sh
-python3 tools/build_audiocuekit.py --target x86_64-windows --cc x86_64-w64-mingw32-gcc
-```
-
-Maintainers run the private validation suite before release. See the repository README for public build instructions.
+The native bridge source is included under `native/`; build it for the architecture of the consuming application.
