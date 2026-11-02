@@ -2,7 +2,7 @@
   "schema": 1,
   "name": "audiocuekit",
   "version": "0.1.0",
-  "description": "Bounded PCM WAV cue mixer with optional SDL2 native audio output",
+  "description": "Mix PCM WAV cues and play them through SDL2",
   "libraries": [
     {
       "libName": "buoy_audiocuekit",
